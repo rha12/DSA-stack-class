@@ -116,3 +116,167 @@ public:
 	}
 
 };
+
+//main function
+int  main()
+{
+	//declaring obejcts
+	Stack stack;
+	Stack stack1;
+	int i = 0;
+	string s;
+	string postfix;
+	char st;
+	int val;
+	char temp;
+	bool validity = true;
+	cout << "Enter the input" << endl;
+	getline(cin, s);
+	while (s[i] != '\0')
+	{
+		if (s[i] == '(' || s[i] == '[' || s[i] == '{')
+		{
+			val = (int)s[i];
+			stack.Push(val);
+		}
+		else if (s[i] == ')' || s[i] == ']' || s[i] == '}')
+		{
+
+			if (stack.isEmpty())
+			{
+				validity = false;
+			}
+			st = (char)stack.pop();
+			if (s[i] == ')' && st == '(')
+				validity = true;
+			else if (s[i] == '}' && st == '{')
+			{
+				validity = true;
+
+			}
+			else if (s[i] == ']' && st == '[')
+				validity = true;
+		}
+		i++;
+	}
+	stack.clear();
+	if (validity == true)
+	{
+		cout << "Is valid" << endl;
+		string postfix;
+		int j = 0;
+		do
+		{
+			st = s[j];
+			if (st >= '0' && st <= '9')
+			{
+				postfix += st;
+			}
+			else if (st == '(' || st == '[' || st == '{')
+			{
+				postfix += ' ';
+				stack.Push((int)st);
+			}
+			else if (st == ')' || st == '[' || st == '{')
+			{
+				postfix += ' ';
+				while (true)
+				{
+					postfix += (char)stack.peak_ret();
+					stack.pop();
+					if ((char)stack.peak_ret() == '(')
+					{
+						stack.pop();
+						break;
+					}
+					stack.pop();
+				}
+			}
+
+			else if (stack.isEmpty() || stack.precedence(st) > stack.precedence((char)stack.peak_ret()))
+			{
+				postfix += ' ';
+
+				stack.Push((int)st);
+			}
+			else if (stack.precedence(st) <= stack.precedence((char)stack.peak_ret()))
+			{
+				while (!stack.isEmpty())
+					postfix += (char)stack.pop();
+				stack.Push((int)st);
+
+			}
+			else {
+				postfix += ' ';
+				while (!stack.isEmpty())
+				{
+					postfix += (char)stack.peak_ret();
+					stack.pop();
+
+				}
+			}
+
+			j++;
+
+
+
+		} while (j != s.length() + 1);
+
+		cout << postfix << endl;
+
+		// Scan all characters one by one
+		for (i = 0; postfix[i]; ++i)
+		{
+			// If the scanned character is an operand (number here),
+			// push it to the stack.
+
+
+			if (postfix[i] == ' ')// if the character is an empty space,
+			//continue
+				continue;
+
+			else if (postfix[i] >= '0' && postfix[i] <= '9')
+			{
+				int num = 0;
+
+				//extract full number
+				while (postfix[i] >= '0' && postfix[i] <= '9')
+				{
+					num = num * 10 + (int)(postfix[i] - '0');
+					i++;
+				}
+				i--;
+
+				//push the element in the stack
+				stack1.Push(num);
+			}
+			// If the scanned character is an operator, pop two
+			// elements from stack apply the operator
+			else
+			{
+				int val1 = stack1.pop();
+				int val2 = stack1.pop();
+				switch (postfix[i])
+				{
+				case '+':
+					stack1.Push(val2 + val1);
+					break;
+				case '-':
+					stack1.Push(val2 - val1);
+					break;
+				case '*':
+					stack1.Push(val2 * val1);
+					break;
+				case '/':
+					stack1.Push(val2 / val1);
+					break;
+				case '^':
+					stack1.Push(pow(val2, val1));
+					break;
+				}
+			}
+		}
+		cout << stack1.pop() << endl;
+
+	}
+}
